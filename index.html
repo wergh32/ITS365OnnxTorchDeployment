@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intel Scene Classifier</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Intel Scene Classifier</h1>
+    <p>Upload an image to classify it as one of the Intel scene categories.</p>
+
+    <input type="file" id="imageUpload" accept="image/*" />
+    <br><br>
+    <img id="preview" width="300" />
+    <br><br>
+    <button onclick="predictImage()">Predict</button>
+
+    <h2 id="result"></h2>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
