@@ -10,15 +10,38 @@
 <body>
   <div class="container">
     <h1>Intel Scene Classifier</h1>
-    <p>Upload an image to classify it as one of the Intel scene categories.</p>
+    <p>Select a sample Intel scene image or upload your own.</p>
 
-    <input type="file" id="imageUpload" accept="image/*" />
-    <br><br>
-    <img id="preview" width="300" />
-    <br><br>
-    <button onclick="predictImage()">Predict</button>
+    <div class="controls">
+      <label for="categorySelect">Choose a scene category:</label>
+      <select id="categorySelect">
+        <option value="buildings">buildings</option>
+        <option value="forest">forest</option>
+        <option value="glacier">glacier</option>
+        <option value="mountain">mountain</option>
+        <option value="sea">sea</option>
+        <option value="street">street</option>
+      </select>
+      <button id="loadSamplesBtn">Load Sample Images</button>
+    </div>
 
-    <h2 id="result"></h2>
+    <div id="sampleGallery" class="gallery"></div>
+
+    <hr>
+
+    <div class="upload-section">
+      <label for="imageUpload">Or upload your own image:</label>
+      <input type="file" id="imageUpload" accept="image/*" />
+    </div>
+
+    <div class="preview-section">
+      <h3>Selected Image</h3>
+      <img id="preview" alt="Selected preview" />
+    </div>
+
+    <button id="predictBtn">Predict</button>
+
+    <div id="result"></div>
   </div>
 
   <script src="script.js"></script>
