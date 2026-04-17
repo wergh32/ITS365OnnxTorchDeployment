@@ -4,34 +4,34 @@ let session = null;
 // Change these paths only if your actual filenames are different
 const sampleImages = {
   buildings: [
-    "./samples/buildings/1.jpg",
-    "./samples/buildings/2.jpg",
-    "./samples/buildings/3.jpg"
+    "./samples/buildings/buildings1.jpg",
+    "./samples/buildings/buildings2.jpg",
+    "./samples/buildings/buildings3.jpg"
   ],
   forest: [
-    "./samples/forest/1.jpg",
-    "./samples/forest/2.jpg",
-    "./samples/forest/3.jpg"
+    "./samples/forest/forest1.jpg",
+    "./samples/forest/forest2.jpg",
+    "./samples/forest/forest3.jpg"
   ],
   glacier: [
-    "./samples/glacier/1.jpg",
-    "./samples/glacier/2.jpg",
-    "./samples/glacier/3.jpg"
+    "./samples/glacier/glacier1.jpg",
+    "./samples/glacier/glacier2.jpg",
+    "./samples/glacier/glacier3.jpg"
   ],
   mountain: [
-    "./samples/mountain/1.jpg",
-    "./samples/mountain/2.jpg",
-    "./samples/mountain/3.jpg"
+    "./samples/mountain/mountain1.jpg",
+    "./samples/mountain/mountain2.jpg",
+    "./samples/mountain/mountain3.jpg"
   ],
   sea: [
-    "./samples/sea/1.jpg",
-    "./samples/sea/2.jpg",
-    "./samples/sea/3.jpg"
+    "./samples/sea/sea1.jpg",
+    "./samples/sea/sea2.jpg",
+    "./samples/sea/sea3.jpg"
   ],
   street: [
-    "./samples/street/1.jpg",
-    "./samples/street/2.jpg",
-    "./samples/street/3.jpg"
+    "./samples/street/street1.jpg",
+    "./samples/street/street2.jpg",
+    "./samples/street/street3.jpg"
   ]
 };
 
