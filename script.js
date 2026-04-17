@@ -110,8 +110,8 @@ function loadSampleImages() {
 
 function preprocessImage(imgElement) {
   const canvas = document.createElement("canvas");
-  canvas.width = 150;
-  canvas.height = 150;
+  canvas.width = 128;
+  canvas.height = 128;
 
   const ctx = canvas.getContext("2d");
   ctx.drawImage(imgElement, 0, 0, 150, 150);
@@ -129,7 +129,7 @@ function preprocessImage(imgElement) {
     floatData[2 * 150 * 150 + i] = b;
   }
 
-  return new ort.Tensor("float32", floatData, [1, 3, 150, 150]);
+  return new ort.Tensor("float32", floatData, [1, 3, 128, 128]);
 }
 
 function softmax(arr) {
