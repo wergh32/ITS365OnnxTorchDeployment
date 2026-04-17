@@ -132,9 +132,6 @@ function preprocessImage(imgElement) {
   return new ort.Tensor("float32", floatData, [1, 3, 128, 128]);
 }
 
-  return new ort.Tensor("float32", floatData, [1, 3, 128, 128]);
-}
-
 function softmax(arr) {
   const maxVal = Math.max(...arr);
   const exps = arr.map(v => Math.exp(v - maxVal));
