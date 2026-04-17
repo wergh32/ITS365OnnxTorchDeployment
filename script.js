@@ -1,48 +1,78 @@
 const classNames = ["buildings", "forest", "glacier", "mountain", "sea", "street"];
 let session = null;
-let selectedImageElement = null;
 
-// List sample images you placed in your repo
+// Change these paths only if your actual filenames are different
 const sampleImages = {
   buildings: [
-    "samples/buildings/buildings1.jpg",
-    "samples/buildings/buildings2.jpg",
-    "samples/buildings/buildings3.jpg"
+    "./samples/buildings/1.jpg",
+    "./samples/buildings/2.jpg",
+    "./samples/buildings/3.jpg"
   ],
   forest: [
-    "samples/forest/forest1.jpg",
-    "samples/forest/forest2.jpg",
-    "samples/forest/forest3.jpg"
+    "./samples/forest/1.jpg",
+    "./samples/forest/2.jpg",
+    "./samples/forest/3.jpg"
   ],
   glacier: [
-    "samples/glacier/glacier1.jpg",
-    "samples/glacier/glacier2.jpg",
-    "samples/glacier/glacier3.jpg"
+    "./samples/glacier/1.jpg",
+    "./samples/glacier/2.jpg",
+    "./samples/glacier/3.jpg"
   ],
   mountain: [
-    "samples/mountain/mountain1.jpg",
-    "samples/mountain/mountain2.jpg",
-    "samples/mountain/mountain3.jpg"
+    "./samples/mountain/1.jpg",
+    "./samples/mountain/2.jpg",
+    "./samples/mountain/3.jpg"
   ],
   sea: [
-    "samples/sea/sea1.jpg",
-    "samples/sea/sea2.jpg",
-    "samples/sea/sea3.jpg"
+    "./samples/sea/1.jpg",
+    "./samples/sea/2.jpg",
+    "./samples/sea/3.jpg"
   ],
   street: [
-    "samples/street/street1.jpg",
-    "samples/street/street2.jpg",
-    "samples/street/street3.jpg"
+    "./samples/street/1.jpg",
+    "./samples/street/2.jpg",
+    "./samples/street/3.jpg"
   ]
 };
 
 async function loadModel() {
+  const result = document.getElementById("result");
+
   try {
-    session = await ort.InferenceSession.create("intel_cnn.onnx");
+    result.innerText = "Loading model...";
+
+    const modelResponse = await fetch("./intel_cnn.onnx");
+    if (!modelResponse.ok) {
+      throw new Error(`Could not fetch intel_cnn.onnx: ${modelResponse.status}`);
+    }
+    const modelBuffer = await modelResponse.arrayBuffer();
+    console.log("Loaded .onnx bytes:", modelBuffer.byteLength);
+
+    const dataResponse = await fetch("./intel_cnn.onnx.data");
+    if (!dataResponse.ok) {
+      throw new Error(`Could not fetch intel_cnn.onnx.data: ${dataResponse.status}`);
+    }
+    const dataBuffer = await dataResponse.arrayBuffer();
+    console.log("Loaded .onnx.data bytes:", dataBuffer.byteLength);
+
+    session = await ort.InferenceSession.create(modelBuffer, {
+      executionProviders: ["wasm"],
+      externalData: [
+        {
+          path: "intel_cnn.onnx.data",
+          data: new Uint8Array(dataBuffer)
+        }
+      ]
+    });
+
     console.log("Model loaded successfully");
+    console.log("Inputs:", session.inputNames);
+    console.log("Outputs:", session.outputNames);
+
+    result.innerText = "Model loaded successfully. Select an image and click Predict.";
   } catch (error) {
     console.error("Error loading model:", error);
-    document.getElementById("result").innerText = "Failed to load ONNX model.";
+    result.innerText = "Failed to load model: " + error.message;
   }
 }
 
@@ -51,36 +81,32 @@ function loadSampleImages() {
   const gallery = document.getElementById("sampleGallery");
   gallery.innerHTML = "";
 
+  if (!sampleImages[category] || sampleImages[category].length === 0) {
+    gallery.innerHTML = "<p>No sample images found for this category.</p>";
+    return;
+  }
+
   sampleImages[category].forEach((imgPath) => {
     const img = document.createElement("img");
     img.src = imgPath;
     img.alt = category;
 
-    img.addEventListener("click", () => {
+    img.onerror = () => {
+      console.error("Image failed to load:", imgPath);
+      img.style.display = "none";
+    };
+
+    img.onclick = () => {
       document.querySelectorAll(".gallery img").forEach(el => el.classList.remove("selected"));
       img.classList.add("selected");
 
       const preview = document.getElementById("preview");
       preview.src = imgPath;
-      selectedImageElement = preview;
-    });
+    };
 
     gallery.appendChild(img);
   });
 }
-
-document.getElementById("loadSamplesBtn").addEventListener("click", loadSampleImages);
-
-document.getElementById("imageUpload").addEventListener("change", function(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const preview = document.getElementById("preview");
-  preview.src = URL.createObjectURL(file);
-  selectedImageElement = preview;
-
-  document.querySelectorAll(".gallery img").forEach(el => el.classList.remove("selected"));
-});
 
 function preprocessImage(imgElement) {
   const canvas = document.createElement("canvas");
@@ -114,22 +140,28 @@ function softmax(arr) {
 }
 
 async function predictImage() {
+  const result = document.getElementById("result");
+  const preview = document.getElementById("preview");
+
   if (!session) {
-    document.getElementById("result").innerText = "Model is still loading.";
+    result.innerText = "Model is not loaded yet.";
     return;
   }
 
-  const preview = document.getElementById("preview");
   if (!preview.src) {
-    document.getElementById("result").innerText = "Please select or upload an image first.";
+    result.innerText = "Please select or upload an image first.";
     return;
   }
 
   try {
-    const inputTensor = preprocessImage(preview);
-    const outputs = await session.run({ input: inputTensor });
+    result.innerText = "Running prediction...";
 
-    const scores = Array.from(outputs.output.data);
+    const inputTensor = preprocessImage(preview);
+    const inputName = session.inputNames[0];
+    const outputName = session.outputNames[0];
+
+    const outputs = await session.run({ [inputName]: inputTensor });
+    const scores = Array.from(outputs[outputName].data);
     const probs = softmax(scores);
 
     let maxIndex = 0;
@@ -139,16 +171,35 @@ async function predictImage() {
       }
     }
 
-    document.getElementById("result").innerHTML =
-      `Prediction: <strong>${classNames[maxIndex]}</strong><br>
-       Confidence: ${(probs[maxIndex] * 100).toFixed(2)}%`;
+    result.innerHTML =
+      `Prediction: <strong>${classNames[maxIndex]}</strong><br>` +
+      `Confidence: ${(probs[maxIndex] * 100).toFixed(2)}%`;
   } catch (error) {
     console.error("Prediction error:", error);
-    document.getElementById("result").innerText = "Prediction failed.";
+    result.innerText = "Prediction failed: " + error.message;
   }
 }
 
-document.getElementById("predictBtn").addEventListener("click", predictImage);
+function clearSelection() {
+  document.getElementById("preview").src = "";
+  document.getElementById("imageUpload").value = "";
+  document.getElementById("result").innerText = "Selection cleared.";
+  document.querySelectorAll(".gallery img").forEach(el => el.classList.remove("selected"));
+}
 
-loadModel();
+document.getElementById("loadSamplesBtn").addEventListener("click", loadSampleImages);
+document.getElementById("predictBtn").addEventListener("click", predictImage);
+document.getElementById("clearBtn").addEventListener("click", clearSelection);
+
+document.getElementById("imageUpload").addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const preview = document.getElementById("preview");
+  preview.src = URL.createObjectURL(file);
+
+  document.querySelectorAll(".gallery img").forEach(el => el.classList.remove("selected"));
+});
+
 loadSampleImages();
+loadModel();
