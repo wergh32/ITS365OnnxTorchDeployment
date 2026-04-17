@@ -10,10 +10,10 @@
 <body>
   <div class="container">
     <h1>Intel Scene Classifier</h1>
-    <p>Select a sample Intel scene image or upload your own.</p>
+    <p>Select a sample Intel scene image or upload your own image.</p>
 
     <div class="controls">
-      <label for="categorySelect">Choose a scene category:</label>
+      <label for="categorySelect">Choose category:</label>
       <select id="categorySelect">
         <option value="buildings">buildings</option>
         <option value="forest">forest</option>
@@ -22,7 +22,8 @@
         <option value="sea">sea</option>
         <option value="street">street</option>
       </select>
-      <button id="loadSamplesBtn">Load Sample Images</button>
+
+      <button id="loadSamplesBtn">Load Samples</button>
     </div>
 
     <div id="sampleGallery" class="gallery"></div>
@@ -30,18 +31,21 @@
     <hr>
 
     <div class="upload-section">
-      <label for="imageUpload">Or upload your own image:</label>
+      <label for="imageUpload">Upload image:</label>
       <input type="file" id="imageUpload" accept="image/*" />
     </div>
 
     <div class="preview-section">
       <h3>Selected Image</h3>
-      <img id="preview" alt="Selected preview" />
+      <img id="preview" alt="Selected image preview" />
     </div>
 
-    <button id="predictBtn">Predict</button>
+    <div class="button-row">
+      <button id="predictBtn">Predict</button>
+      <button id="clearBtn">Clear</button>
+    </div>
 
-    <div id="result"></div>
+    <div id="result">Loading model...</div>
   </div>
 
   <script src="script.js"></script>
