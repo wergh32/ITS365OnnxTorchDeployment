@@ -114,20 +114,23 @@ function preprocessImage(imgElement) {
   canvas.height = 128;
 
   const ctx = canvas.getContext("2d");
-  ctx.drawImage(imgElement, 0, 0, 150, 150);
+  ctx.drawImage(imgElement, 0, 0, 128, 128);
 
-  const imageData = ctx.getImageData(0, 0, 150, 150).data;
-  const floatData = new Float32Array(1 * 3 * 150 * 150);
+  const imageData = ctx.getImageData(0, 0, 128, 128).data;
+  const floatData = new Float32Array(1 * 3 * 128 * 128);
 
-  for (let i = 0; i < 150 * 150; i++) {
+  for (let i = 0; i < 128 * 128; i++) {
     const r = imageData[i * 4] / 255.0;
     const g = imageData[i * 4 + 1] / 255.0;
     const b = imageData[i * 4 + 2] / 255.0;
 
     floatData[i] = r;
-    floatData[150 * 150 + i] = g;
-    floatData[2 * 150 * 150 + i] = b;
+    floatData[128 * 128 + i] = g;
+    floatData[2 * 128 * 128 + i] = b;
   }
+
+  return new ort.Tensor("float32", floatData, [1, 3, 128, 128]);
+}
 
   return new ort.Tensor("float32", floatData, [1, 3, 128, 128]);
 }
